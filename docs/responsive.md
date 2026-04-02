@@ -1,6 +1,6 @@
 # Responsive Design — Booking System
 
-Documentation for the responsive strategy introduced in V1.1 (Sprint 09).
+Documentation for the responsive design strategy introduced in V1.1.
 
 ---
 
