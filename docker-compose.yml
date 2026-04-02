@@ -1,0 +1,89 @@
+version: '3.8'
+
+services:
+  # ─── PostgreSQL ───
+  postgres:
+    image: postgres:16-alpine
+    container_name: booking-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: booking
+      POSTGRES_USER: booking
+      POSTGRES_PASSWORD: booking123
+    ports:
+      - "5433:5432"
+    volumes:
+      - booking_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U booking"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # ─── Mailpit (SMTP + Web UI) ───
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: booking-mailpit
+    restart: unless-stopped
+    ports:
+      - "1025:1025"   # SMTP
+      - "8025:8025"   # Web UI
+    environment:
+      MP_SMTP_AUTH_ACCEPT_ANY: 1
+      MP_SMTP_AUTH_ALLOW_INSECURE: 1
+
+  # ─── API Node.js ───
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: booking-api
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      API_PORT: 3000
+      JWT_SECRET: booking-jwt-secret-change-me-in-prod
+      # PostgreSQL
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: booking
+      DB_USER: booking
+      DB_PASS: booking123
+      # MinIO (utilise hotelbot-minio existant)
+      MINIO_HOST: host.docker.internal
+      MINIO_PORT: 9000
+      MINIO_ACCESS_KEY: hotelbot
+      MINIO_SECRET_KEY: hotelbot_secret
+      MINIO_BUCKET: booking-uploads
+      MINIO_PUBLIC_HOST: http://localhost:9000
+      # LocationIQ (optionnel — utilise Nominatim si vide)
+      LOCATIONIQ_KEY: ""
+      # SMTP (Mailpit)
+      SMTP_HOST: mailpit
+      SMTP_PORT: 1025
+      SMTP_USER: ""
+      SMTP_PASS: ""
+      SMTP_FROM: noreply@booking.local
+      ADMIN_EMAIL: admin@booking.local
+      BASE_URL: http://localhost:5173
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: sh -c "node seed.js --no-force; node server.js"
+
+  # ─── Frontend Vue.js ───
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: booking-frontend
+    restart: unless-stopped
+    ports:
+      - "5173:80"
+    depends_on:
+      - api
+
+volumes:
+  booking_pgdata:

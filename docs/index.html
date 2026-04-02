@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Booking System — Documentation</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<button class="menu-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')">&#9776;</button>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      Booking System
+      <small>Documentation V1.1</small>
+    </div>
+    <nav>
+      <a href="index.html" class="active">Home</a>
+
+      <div class="section-title">Guides</div>
+      <a href="custom-fields.html">Custom Fields</a>
+      <a href="responsive.html">Responsive Design</a>
+
+      <div class="section-title">Reference</div>
+      <a href="api-reference.html">API Reference</a>
+      <a href="changelog.html">Changelog</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="content">
+
+      <div class="hero">
+        <h1>Booking System</h1>
+        <p>Turnkey multi-resource booking system.</p>
+        <div style="margin-top: 16px;">
+          <span class="badge badge-blue">Vue.js 3</span>
+          <span class="badge badge-blue">Node.js</span>
+          <span class="badge badge-blue">PostgreSQL</span>
+          <span class="badge badge-blue">Docker</span>
+          <span class="badge badge-blue">13 Languages</span>
+          <span class="badge badge-blue">Responsive</span>
+        </div>
+      </div>
+
+      <h2>Key Features</h2>
+
+      <div class="features">
+        <div class="feature-card">
+          <div class="feature-icon">&#128197;</div>
+          <h3>Custom Calendar with 6 Views</h3>
+          <p>Month, Week, Day, Timeline, Resource Month, Resource Grid. 100% custom-built, no FullCalendar.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">&#9995;</div>
+          <h3>Full Drag &amp; Drop</h3>
+          <p>Create, move, and resize bookings via drag and drop. Tablet touch support included.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">&#128221;</div>
+          <h3>19 Field Types</h3>
+          <p>Text, select, file/image, address, video, color, slider, checkbox, and more.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">&#127760;</div>
+          <h3>13 Languages</h3>
+          <p>FR, EN, DE, ES, IT, PT, NL, PL, RU, AR, JA, ZH, TR. Instant switching.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">&#128241;</div>
+          <h3>Mobile-First Responsive</h3>
+          <p>Hamburger menu, bottom sheet, swipe, tap-to-create. Adapted for phone, tablet, and desktop.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">&#128268;</div>
+          <h3>Docker in 1 Command</h3>
+          <p><code>make up</code> — PostgreSQL, API, Frontend nginx, Mailpit. Up and running in 2 minutes.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">&#128247;</div>
+          <h3>MinIO Upload</h3>
+          <p>Upload files/images to MinIO (S3) with preview, size controls, and lightbox.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">&#128231;</div>
+          <h3>Automated Emails</h3>
+          <p>Client confirmation, admin notification, and automatic D-1 reminder via SMTP.</p>
+        </div>
+      </div>
+
+      <h2>Quick Start</h2>
+
+      <pre><code># Start all services
+make up
+
+# Create demo data
+make seed-demo
+
+# Access the application
+# Frontend : http://localhost:5173
+# Admin    : admin@booking.local / admin123</code></pre>
+
+      <h2>Tech Stack</h2>
+
+      <table>
+        <thead>
+          <tr><th>Layer</th><th>Technology</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Frontend</td><td>Vue.js 3, Tailwind CSS v4, Pinia, Vue Router</td></tr>
+          <tr><td>Backend</td><td>Node.js 20, Express.js, Sequelize ORM</td></tr>
+          <tr><td>Database</td><td>PostgreSQL 16</td></tr>
+          <tr><td>Storage</td><td>MinIO (S3-compatible)</td></tr>
+          <tr><td>Email</td><td>Nodemailer + Mailpit (dev)</td></tr>
+          <tr><td>Infrastructure</td><td>Docker Compose, nginx</td></tr>
+        </tbody>
+      </table>
+
+      <h2>Responsive Breakpoints</h2>
+
+      <table>
+        <thead>
+          <tr><th>Screen</th><th>Width</th><th>Calendar Views</th><th>Interactions</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Phone</td><td>&lt; 640px</td><td>Month (dots), Day</td><td>Tap, swipe</td></tr>
+          <tr><td>Tablet</td><td>640-1023px</td><td>All (6 views)</td><td>Touch drag</td></tr>
+          <tr><td>Desktop</td><td>&ge; 1024px</td><td>All (6 views)</td><td>Mouse drag &amp; drop</td></tr>
+        </tbody>
+      </table>
+
+      <h2>Documentation</h2>
+
+      <ul>
+        <li><a href="custom-fields.html">Custom Fields</a> &mdash; 19 types, storage, validation, upload</li>
+        <li><a href="responsive.html">Responsive Design</a> &mdash; Breakpoints, touch, mobile UX</li>
+        <li><a href="api-reference.html">API Reference</a> &mdash; All endpoints with examples</li>
+        <li><a href="changelog.html">Changelog</a> &mdash; Version history</li>
+      </ul>
+
+    </div>
+  </main>
+</div>
+
+</body>
+</html>

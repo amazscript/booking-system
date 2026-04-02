@@ -1,0 +1,943 @@
+<!DOCTYPE html><html lang="en"><head>  <meta charset="UTF-8">  <meta name="viewport" content="width=device-width, initial-scale=1.0">  <title>api-reference — Booking System Documentation</title>  <link rel="stylesheet" href="style.css"></head><body><button class="menu-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')">&#9776;</button><div class="layout">  <aside class="sidebar">    <div class="sidebar-logo">Booking System<small>Documentation V1.1</small></div>    <nav><a href="index.html">Home</a><div class="section-title">Guides</div><a href="custom-fields.html">Custom Fields</a><a href="responsive.html">Responsive Design</a><div class="section-title">Reference</div><a href="api-reference.html" class="active">API Reference</a><a href="changelog.html">Changelog</a></nav>  </aside>  <main class="main"><div class="content"><h1>API Reference — Booking System</h1>
+<p>Complete documentation for all REST API endpoints (V1.1).</p>
+<p><strong>Base URL</strong>: <code>http://localhost:3000/api</code></p>
+<p><strong>Authentication</strong>: Admin endpoints require a JWT token in the <code>Authorization: Bearer &lt;token&gt;</code> header.</p>
+<hr>
+<h2>Public Endpoints (No Authentication Required)</h2>
+<h3>GET /api/health</h3>
+<p>Server health check.</p>
+<p><strong>Response</strong>: <code>200 OK</code></p>
+<pre><code class="language-json">{ &quot;status&quot;: &quot;ok&quot; }
+</code></pre>
+<hr>
+<h3>GET /api/resources</h3>
+<p>List of active resources.</p>
+<p><strong>Response</strong>: <code>200 OK</code></p>
+<pre><code class="language-json">[
+  {
+    &quot;id&quot;: 1,
+    &quot;name&quot;: &quot;Meeting Room A&quot;,
+    &quot;description&quot;: &quot;10-seat room with projector&quot;,
+    &quot;capacity&quot;: 10,
+    &quot;color&quot;: &quot;#3B82F6&quot;,
+    &quot;active&quot;: true
+  }
+]
+</code></pre>
+<hr>
+<h3>GET /api/resources/:id/slots</h3>
+<p>Available time slots for a resource on a given date.</p>
+<p><strong>Query Parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>date</code></td>
+<td>string</td>
+<td>Yes</td>
+<td>Date in <code>YYYY-MM-DD</code> format</td>
+</tr>
+</tbody></table>
+<p><strong>Example</strong>: <code>GET /api/resources/1/slots?date=2026-04-15</code></p>
+<p><strong>Response</strong>: <code>200 OK</code></p>
+<pre><code class="language-json">[
+  { &quot;start&quot;: &quot;09:00&quot;, &quot;end&quot;: &quot;10:00&quot; },
+  { &quot;start&quot;: &quot;10:00&quot;, &quot;end&quot;: &quot;11:00&quot; },
+  { &quot;start&quot;: &quot;14:00&quot;, &quot;end&quot;: &quot;15:00&quot; }
+]
+</code></pre>
+<hr>
+<h3>GET /api/resources/:id/fields</h3>
+<p>Custom fields for a resource (for the booking form).</p>
+<p><strong>Example</strong>: <code>GET /api/resources/1/fields</code></p>
+<p><strong>Response</strong>: <code>200 OK</code></p>
+<pre><code class="language-json">[
+  {
+    &quot;id&quot;: 1,
+    &quot;resource_id&quot;: 1,
+    &quot;label&quot;: &quot;Number of adults&quot;,
+    &quot;type&quot;: &quot;number&quot;,
+    &quot;required&quot;: true,
+    &quot;options&quot;: null,
+    &quot;placeholder&quot;: &quot;E.g.: 2&quot;,
+    &quot;sort_order&quot;: 1
+  },
+  {
+    &quot;id&quot;: 2,
+    &quot;resource_id&quot;: 1,
+    &quot;label&quot;: &quot;Breakfast&quot;,
+    &quot;type&quot;: &quot;checkbox&quot;,
+    &quot;required&quot;: false,
+    &quot;options&quot;: null,
+    &quot;placeholder&quot;: &quot;&quot;,
+    &quot;sort_order&quot;: 2
+  }
+]
+</code></pre>
+<hr>
+<h3>GET /api/resources/bookings/public</h3>
+<p>Public bookings (without client personal data).</p>
+<p><strong>Query Parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>date_from</code></td>
+<td>string</td>
+<td>Yes</td>
+<td>Start date (YYYY-MM-DD)</td>
+</tr>
+<tr>
+<td><code>date_to</code></td>
+<td>string</td>
+<td>Yes</td>
+<td>End date (YYYY-MM-DD)</td>
+</tr>
+</tbody></table>
+<p><strong>Example</strong>: <code>GET /api/resources/bookings/public?date_from=2026-04-01&amp;date_to=2026-04-30</code></p>
+<p><strong>Response</strong>: <code>200 OK</code></p>
+<pre><code class="language-json">[
+  {
+    &quot;id&quot;: 1,
+    &quot;resource_id&quot;: 1,
+    &quot;start_at&quot;: &quot;2026-04-15T09:00:00.000Z&quot;,
+    &quot;end_at&quot;: &quot;2026-04-15T10:00:00.000Z&quot;,
+    &quot;status&quot;: &quot;confirmed&quot;,
+    &quot;color&quot;: &quot;#3B82F6&quot;
+  }
+]
+</code></pre>
+<hr>
+<h3>GET /api/resources/blocks/public</h3>
+<p>Public blocks/unavailabilities.</p>
+<p><strong>Query Parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>date_from</code></td>
+<td>string</td>
+<td>Yes</td>
+<td>Start date (YYYY-MM-DD)</td>
+</tr>
+<tr>
+<td><code>date_to</code></td>
+<td>string</td>
+<td>Yes</td>
+<td>End date (YYYY-MM-DD)</td>
+</tr>
+</tbody></table>
+<p><strong>Response</strong>: <code>200 OK</code></p>
+<pre><code class="language-json">[
+  {
+    &quot;id&quot;: 1,
+    &quot;resource_id&quot;: 1,
+    &quot;start_at&quot;: &quot;2026-04-20T00:00:00.000Z&quot;,
+    &quot;end_at&quot;: &quot;2026-04-22T23:59:00.000Z&quot;,
+    &quot;reason&quot;: &quot;Holiday&quot;
+  }
+]
+</code></pre>
+<hr>
+<h3>POST /api/bookings</h3>
+<p>Create a booking (client form).</p>
+<p><strong>Request Body</strong>:</p>
+<pre><code class="language-json">{
+  &quot;resource_id&quot;: 1,
+  &quot;client_name&quot;: &quot;John Doe&quot;,
+  &quot;email&quot;: &quot;john@example.com&quot;,
+  &quot;phone&quot;: &quot;0612345678&quot;,
+  &quot;start_at&quot;: &quot;2026-04-15T09:00:00&quot;,
+  &quot;end_at&quot;: &quot;2026-04-15T10:00:00&quot;,
+  &quot;notes&quot;: &quot;First visit&quot;,
+  &quot;color&quot;: &quot;&quot;,
+  &quot;custom_values&quot;: [
+    { &quot;field_id&quot;: 1, &quot;value&quot;: &quot;2&quot; },
+    { &quot;field_id&quot;: 2, &quot;value&quot;: &quot;true&quot; }
+  ]
+}
+</code></pre>
+<p><strong>Success Response</strong>: <code>201 Created</code></p>
+<pre><code class="language-json">{
+  &quot;id&quot;: 1,
+  &quot;resource_id&quot;: 1,
+  &quot;client_name&quot;: &quot;John Doe&quot;,
+  &quot;email&quot;: &quot;john@example.com&quot;,
+  &quot;phone&quot;: &quot;0612345678&quot;,
+  &quot;start_at&quot;: &quot;2026-04-15T09:00:00.000Z&quot;,
+  &quot;end_at&quot;: &quot;2026-04-15T10:00:00.000Z&quot;,
+  &quot;token&quot;: &quot;a1b2c3d4-e5f6-7890-abcd-ef1234567890&quot;,
+  &quot;status&quot;: &quot;confirmed&quot;,
+  &quot;notes&quot;: &quot;First visit&quot;
+}
+</code></pre>
+<p><strong>Conflict Response</strong>: <code>409 Conflict</code></p>
+<pre><code class="language-json">{ &quot;error&quot;: &quot;This time slot is already booked for this resource&quot; }
+</code></pre>
+<hr>
+<h3>DELETE /api/bookings/:token</h3>
+<p>Cancel a booking via the unique token (email link).</p>
+<p><strong>Example</strong>: <code>DELETE /api/bookings/a1b2c3d4-e5f6-7890-abcd-ef1234567890</code></p>
+<p><strong>Response</strong>: <code>200 OK</code></p>
+<pre><code class="language-json">{ &quot;message&quot;: &quot;Booking successfully cancelled&quot; }
+</code></pre>
+<hr>
+<h3>POST /api/auth/login</h3>
+<p>Administrator login.</p>
+<p><strong>Request Body</strong>:</p>
+<pre><code class="language-json">{
+  &quot;email&quot;: &quot;admin@booking.com&quot;,
+  &quot;password&quot;: &quot;admin123&quot;
+}
+</code></pre>
+<p><strong>Response</strong>: <code>200 OK</code></p>
+<pre><code class="language-json">{
+  &quot;token&quot;: &quot;eyJhbGciOiJIUzI1NiIs...&quot;,
+  &quot;user&quot;: {
+    &quot;id&quot;: 1,
+    &quot;email&quot;: &quot;admin@booking.com&quot;,
+    &quot;role&quot;: &quot;admin&quot;
+  }
+}
+</code></pre>
+<hr>
+<h3>GET /api/settings/public</h3>
+<p>Public settings (name, logo, colors).</p>
+<p><strong>Response</strong>: <code>200 OK</code></p>
+<pre><code class="language-json">{
+  &quot;app_name&quot;: &quot;My Booking&quot;,
+  &quot;logo_url&quot;: &quot;/uploads/logo.png&quot;,
+  &quot;primary_color&quot;: &quot;#3B82F6&quot;,
+  &quot;secondary_color&quot;: &quot;#10B981&quot;
+}
+</code></pre>
+<hr>
+<h3>GET /api/geocode</h3>
+<p>Geocode an address (for <code>address</code> type fields).</p>
+<p><strong>Query Parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>address</code></td>
+<td>string</td>
+<td>Yes</td>
+<td>Address to geocode</td>
+</tr>
+</tbody></table>
+<p><strong>Example</strong>: <code>GET /api/geocode?address=10+rue+de+Rivoli+Paris</code></p>
+<p><strong>Response</strong>: <code>200 OK</code></p>
+<pre><code class="language-json">{
+  &quot;lat&quot;: 48.8566,
+  &quot;lng&quot;: 2.3522,
+  &quot;formatted_address&quot;: &quot;10 Rue de Rivoli, 75004 Paris, France&quot;
+}
+</code></pre>
+<hr>
+<h3>POST /api/upload</h3>
+<p>Upload a file to MinIO (S3-compatible).</p>
+<p><strong>Content-Type</strong>: <code>multipart/form-data</code></p>
+<p><strong>Body</strong>: <code>file</code> field containing the file to upload.</p>
+<p><strong>Limits</strong>:</p>
+<ul>
+<li>Maximum size: 10 MB</li>
+<li>Allowed types: images (jpg, png, gif, webp, svg), documents (pdf, doc, docx)</li>
+</ul>
+<p><strong>Success Response</strong>: <code>200 OK</code></p>
+<pre><code class="language-json">{
+  &quot;url&quot;: &quot;http://localhost:9000/booking/uploads/abc123-photo.jpg&quot;
+}
+</code></pre>
+<p><strong>Error Response (file too large)</strong>: <code>413 Payload Too Large</code></p>
+<pre><code class="language-json">{ &quot;error&quot;: &quot;The file exceeds the maximum allowed size (10 MB)&quot; }
+</code></pre>
+<p><strong>Error Response (type not allowed)</strong>: <code>400 Bad Request</code></p>
+<pre><code class="language-json">{ &quot;error&quot;: &quot;This file type is not allowed&quot; }
+</code></pre>
+<hr>
+<h2>Admin Endpoints (JWT Required)</h2>
+<p>All endpoints below require the header:</p>
+<pre><code>Authorization: Bearer &lt;jwt_token&gt;
+</code></pre>
+<hr>
+<h3>Bookings</h3>
+<h4>GET /api/admin/bookings</h4>
+<p>List bookings with filters and pagination.</p>
+<p><strong>Query Parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>status</code></td>
+<td>string</td>
+<td>No</td>
+<td>Filter by status (<code>confirmed</code>, <code>cancelled</code>)</td>
+</tr>
+<tr>
+<td><code>resource_id</code></td>
+<td>integer</td>
+<td>No</td>
+<td>Filter by resource</td>
+</tr>
+<tr>
+<td><code>date_from</code></td>
+<td>string</td>
+<td>No</td>
+<td>Start date (YYYY-MM-DD)</td>
+</tr>
+<tr>
+<td><code>date_to</code></td>
+<td>string</td>
+<td>No</td>
+<td>End date (YYYY-MM-DD)</td>
+</tr>
+<tr>
+<td><code>page</code></td>
+<td>integer</td>
+<td>No</td>
+<td>Page number (default: 1)</td>
+</tr>
+<tr>
+<td><code>limit</code></td>
+<td>integer</td>
+<td>No</td>
+<td>Items per page (default: 20)</td>
+</tr>
+</tbody></table>
+<p><strong>Response</strong>: <code>200 OK</code></p>
+<pre><code class="language-json">{
+  &quot;bookings&quot;: [
+    {
+      &quot;id&quot;: 1,
+      &quot;resource_id&quot;: 1,
+      &quot;client_name&quot;: &quot;John Doe&quot;,
+      &quot;email&quot;: &quot;john@example.com&quot;,
+      &quot;phone&quot;: &quot;0612345678&quot;,
+      &quot;start_at&quot;: &quot;2026-04-15T09:00:00.000Z&quot;,
+      &quot;end_at&quot;: &quot;2026-04-15T10:00:00.000Z&quot;,
+      &quot;status&quot;: &quot;confirmed&quot;,
+      &quot;notes&quot;: &quot;First visit&quot;,
+      &quot;Resource&quot;: { &quot;id&quot;: 1, &quot;name&quot;: &quot;Room A&quot;, &quot;color&quot;: &quot;#3B82F6&quot; }
+    }
+  ],
+  &quot;total&quot;: 45,
+  &quot;page&quot;: 1,
+  &quot;totalPages&quot;: 3
+}
+</code></pre>
+<h4>POST /api/admin/bookings</h4>
+<p>Create a booking manually (admin).</p>
+<p><strong>Body</strong>: same format as <code>POST /api/bookings</code>.</p>
+<p><strong>Response</strong>: <code>201 Created</code></p>
+<h4>PUT /api/admin/bookings/:id</h4>
+<p>Update a booking.</p>
+<p><strong>Request Body</strong>:</p>
+<pre><code class="language-json">{
+  &quot;resource_id&quot;: 1,
+  &quot;client_name&quot;: &quot;John Doe&quot;,
+  &quot;email&quot;: &quot;john@example.com&quot;,
+  &quot;phone&quot;: &quot;0612345678&quot;,
+  &quot;start_at&quot;: &quot;2026-04-15T10:00:00&quot;,
+  &quot;end_at&quot;: &quot;2026-04-15T11:00:00&quot;,
+  &quot;status&quot;: &quot;confirmed&quot;,
+  &quot;notes&quot;: &quot;Rescheduled by 1 hour&quot;,
+  &quot;color&quot;: &quot;#EF4444&quot;
+}
+</code></pre>
+<p><strong>Response</strong>: <code>200 OK</code></p>
+<h4>DELETE /api/admin/bookings/:id</h4>
+<p>Cancel a booking (sets status to <code>cancelled</code>, does not delete).</p>
+<p><strong>Response</strong>: <code>200 OK</code></p>
+<pre><code class="language-json">{ &quot;message&quot;: &quot;Booking cancelled&quot; }
+</code></pre>
+<h4>DELETE /api/admin/bookings/:id/permanent</h4>
+<p>Permanently delete a booking, its custom field values, and associated MinIO files.</p>
+<p><strong>Response</strong>: <code>200 OK</code></p>
+<pre><code class="language-json">{ &quot;message&quot;: &quot;Booking permanently deleted&quot; }
+</code></pre>
+<hr>
+<h3>Custom Field Values</h3>
+<h4>GET /api/admin/booking-values/:bookingId</h4>
+<p>Retrieve custom field values for a booking.</p>
+<p><strong>Example</strong>: <code>GET /api/admin/booking-values/1</code></p>
+<p><strong>Response</strong>: <code>200 OK</code></p>
+<pre><code class="language-json">[
+  {
+    &quot;id&quot;: 1,
+    &quot;booking_id&quot;: 1,
+    &quot;field_id&quot;: 1,
+    &quot;value&quot;: &quot;2&quot;,
+    &quot;CustomField&quot;: {
+      &quot;id&quot;: 1,
+      &quot;label&quot;: &quot;Number of adults&quot;,
+      &quot;type&quot;: &quot;number&quot;
+    }
+  },
+  {
+    &quot;id&quot;: 2,
+    &quot;booking_id&quot;: 1,
+    &quot;field_id&quot;: 2,
+    &quot;value&quot;: &quot;true&quot;,
+    &quot;CustomField&quot;: {
+      &quot;id&quot;: 2,
+      &quot;label&quot;: &quot;Breakfast&quot;,
+      &quot;type&quot;: &quot;checkbox&quot;
+    }
+  }
+]
+</code></pre>
+<hr>
+<h3>Resources</h3>
+<h4>GET /api/admin/resources</h4>
+<p>List resources (active and inactive). Supports optional pagination and search.</p>
+<table>
+<thead>
+<tr>
+<th>Param</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>page</code></td>
+<td>number</td>
+<td>Page number (enables pagination)</td>
+</tr>
+<tr>
+<td><code>limit</code></td>
+<td>number</td>
+<td>Results per page (default: 20)</td>
+</tr>
+<tr>
+<td><code>search</code></td>
+<td>string</td>
+<td>Filter by name (case-insensitive)</td>
+</tr>
+</tbody></table>
+<p>Without <code>page</code>, returns all resources (backward-compatible for the public calendar).</p>
+<p><strong>Response</strong>: <code>200 OK</code></p>
+<pre><code class="language-json">[
+  {
+    &quot;id&quot;: 1,
+    &quot;name&quot;: &quot;Room A&quot;,
+    &quot;description&quot;: &quot;10-seat meeting room&quot;,
+    &quot;capacity&quot;: 10,
+    &quot;color&quot;: &quot;#3B82F6&quot;,
+    &quot;active&quot;: true
+  }
+]
+</code></pre>
+<h4>POST /api/admin/resources</h4>
+<p>Create a resource.</p>
+<p><strong>Request Body</strong>:</p>
+<pre><code class="language-json">{
+  &quot;name&quot;: &quot;Room B&quot;,
+  &quot;description&quot;: &quot;20-seat conference room&quot;,
+  &quot;capacity&quot;: 20,
+  &quot;color&quot;: &quot;#10B981&quot;,
+  &quot;active&quot;: true
+}
+</code></pre>
+<p><strong>Response</strong>: <code>201 Created</code></p>
+<h4>PUT /api/admin/resources/:id</h4>
+<p>Update a resource.</p>
+<p><strong>Response</strong>: <code>200 OK</code></p>
+<h4>DELETE /api/admin/resources/:id</h4>
+<p>Delete a resource.</p>
+<p><strong>Response</strong>: <code>200 OK</code></p>
+<h4>PUT /api/admin/resources-reorder</h4>
+<p>Reorder resources.</p>
+<p><strong>Request Body</strong>:</p>
+<pre><code class="language-json">{
+  &quot;order&quot;: [3, 1, 2]
+}
+</code></pre>
+<p><strong>Response</strong>: <code>200 OK</code></p>
+<hr>
+<h3>Time Slots</h3>
+<h4>POST /api/admin/slots</h4>
+<p>Define time slots for a resource.</p>
+<p><strong>Request Body</strong>:</p>
+<pre><code class="language-json">{
+  &quot;resource_id&quot;: 1,
+  &quot;slots&quot;: [
+    { &quot;day_of_week&quot;: 1, &quot;start_time&quot;: &quot;09:00&quot;, &quot;end_time&quot;: &quot;18:00&quot;, &quot;duration_min&quot;: 60 },
+    { &quot;day_of_week&quot;: 2, &quot;start_time&quot;: &quot;09:00&quot;, &quot;end_time&quot;: &quot;18:00&quot;, &quot;duration_min&quot;: 60 },
+    { &quot;day_of_week&quot;: 3, &quot;start_time&quot;: &quot;09:00&quot;, &quot;end_time&quot;: &quot;18:00&quot;, &quot;duration_min&quot;: 60 },
+    { &quot;day_of_week&quot;: 4, &quot;start_time&quot;: &quot;09:00&quot;, &quot;end_time&quot;: &quot;18:00&quot;, &quot;duration_min&quot;: 60 },
+    { &quot;day_of_week&quot;: 5, &quot;start_time&quot;: &quot;09:00&quot;, &quot;end_time&quot;: &quot;17:00&quot;, &quot;duration_min&quot;: 60 }
+  ]
+}
+</code></pre>
+<p><strong>Response</strong>: <code>200 OK</code></p>
+<blockquote>
+<p>Note: this endpoint replaces all existing slots for the given resource.</p>
+</blockquote>
+<hr>
+<h3>Blocks / Unavailabilities</h3>
+<h4>GET /api/admin/blocks</h4>
+<p>List blocks/unavailabilities with pagination.</p>
+<table>
+<thead>
+<tr>
+<th>Param</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>resource_id</code></td>
+<td>number</td>
+<td>Filter by resource</td>
+</tr>
+<tr>
+<td><code>page</code></td>
+<td>number</td>
+<td>Page number (default: 1)</td>
+</tr>
+<tr>
+<td><code>limit</code></td>
+<td>number</td>
+<td>Results per page (default: 20)</td>
+</tr>
+</tbody></table>
+<p><strong>Response</strong>: <code>200 OK</code></p>
+<pre><code class="language-json">[
+  {
+    &quot;id&quot;: 1,
+    &quot;resource_id&quot;: 1,
+    &quot;start_at&quot;: &quot;2026-04-20T00:00:00.000Z&quot;,
+    &quot;end_at&quot;: &quot;2026-04-22T23:59:00.000Z&quot;,
+    &quot;reason&quot;: &quot;Annual leave&quot;,
+    &quot;Resource&quot;: { &quot;id&quot;: 1, &quot;name&quot;: &quot;Room A&quot; }
+  }
+]
+</code></pre>
+<h4>POST /api/admin/blocks</h4>
+<p>Create an unavailability block.</p>
+<p><strong>Request Body</strong>:</p>
+<pre><code class="language-json">{
+  &quot;resource_id&quot;: 1,
+  &quot;start_at&quot;: &quot;2026-04-20T00:00:00&quot;,
+  &quot;end_at&quot;: &quot;2026-04-22T23:59:00&quot;,
+  &quot;reason&quot;: &quot;Annual leave&quot;
+}
+</code></pre>
+<p><strong>Response</strong>: <code>201 Created</code></p>
+<h4>PUT /api/admin/blocks/:id</h4>
+<p>Update an existing block. <em>(New in V1.1)</em></p>
+<p><strong>Request Body</strong>:</p>
+<pre><code class="language-json">{
+  &quot;resource_id&quot;: 1,
+  &quot;start_at&quot;: &quot;2026-04-20T00:00:00&quot;,
+  &quot;end_at&quot;: &quot;2026-04-25T23:59:00&quot;,
+  &quot;reason&quot;: &quot;Extended leave&quot;
+}
+</code></pre>
+<p><strong>Response</strong>: <code>200 OK</code></p>
+<blockquote>
+<p>Note: dates are converted to UTC using the <code>toLocalISO</code> function to correctly handle timezones.</p>
+</blockquote>
+<h4>DELETE /api/admin/blocks/:id</h4>
+<p>Delete a block.</p>
+<p><strong>Response</strong>: <code>200 OK</code></p>
+<pre><code class="language-json">{ &quot;message&quot;: &quot;Block deleted&quot; }
+</code></pre>
+<hr>
+<h3>Custom Fields</h3>
+<h4>GET /api/admin/custom-fields</h4>
+<p>List all custom fields.</p>
+<p><strong>Query Parameters</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Type</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>resource_id</code></td>
+<td>integer</td>
+<td>No</td>
+<td>Filter by resource</td>
+</tr>
+</tbody></table>
+<p><strong>Response</strong>: <code>200 OK</code></p>
+<pre><code class="language-json">[
+  {
+    &quot;id&quot;: 1,
+    &quot;resource_id&quot;: 1,
+    &quot;label&quot;: &quot;Number of adults&quot;,
+    &quot;type&quot;: &quot;number&quot;,
+    &quot;required&quot;: true,
+    &quot;options&quot;: null,
+    &quot;placeholder&quot;: &quot;E.g.: 2&quot;,
+    &quot;sort_order&quot;: 1
+  },
+  {
+    &quot;id&quot;: 2,
+    &quot;resource_id&quot;: 1,
+    &quot;label&quot;: &quot;Service&quot;,
+    &quot;type&quot;: &quot;select&quot;,
+    &quot;required&quot;: true,
+    &quot;options&quot;: [&quot;Haircut 30min $25&quot;, &quot;Color 1h30 $60&quot;, &quot;Highlights 2h $80&quot;],
+    &quot;placeholder&quot;: &quot;&quot;,
+    &quot;sort_order&quot;: 2
+  }
+]
+</code></pre>
+<h4>POST /api/admin/custom-fields</h4>
+<p>Create a custom field.</p>
+<p><strong>Request Body</strong>:</p>
+<pre><code class="language-json">{
+  &quot;resource_id&quot;: 1,
+  &quot;label&quot;: &quot;Number of adults&quot;,
+  &quot;type&quot;: &quot;number&quot;,
+  &quot;required&quot;: true,
+  &quot;options&quot;: null,
+  &quot;placeholder&quot;: &quot;E.g.: 2&quot;,
+  &quot;sort_order&quot;: 1
+}
+</code></pre>
+<p><strong>Response</strong>: <code>201 Created</code></p>
+<h4>PUT /api/admin/custom-fields/:id</h4>
+<p>Update a custom field.</p>
+<p><strong>Body</strong>: same format as creation (fields to update).</p>
+<p><strong>Response</strong>: <code>200 OK</code></p>
+<h4>DELETE /api/admin/custom-fields/:id</h4>
+<p>Delete a custom field.</p>
+<p><strong>Response</strong>: <code>200 OK</code></p>
+<pre><code class="language-json">{ &quot;message&quot;: &quot;Custom field deleted&quot; }
+</code></pre>
+<h4>PUT /api/admin/custom-fields-reorder</h4>
+<p>Reorder custom fields.</p>
+<p><strong>Request Body</strong>:</p>
+<pre><code class="language-json">{
+  &quot;order&quot;: [3, 1, 2]
+}
+</code></pre>
+<p><strong>Response</strong>: <code>200 OK</code></p>
+<hr>
+<h3>Settings</h3>
+<h4>GET /api/admin/settings</h4>
+<p>Read all settings.</p>
+<p><strong>Response</strong>: <code>200 OK</code></p>
+<pre><code class="language-json">{
+  &quot;app_name&quot;: &quot;My Booking&quot;,
+  &quot;logo_url&quot;: &quot;/uploads/logo.png&quot;,
+  &quot;primary_color&quot;: &quot;#3B82F6&quot;,
+  &quot;secondary_color&quot;: &quot;#10B981&quot;,
+  &quot;smtp_host&quot;: &quot;smtp.example.com&quot;,
+  &quot;smtp_port&quot;: &quot;587&quot;,
+  &quot;smtp_user&quot;: &quot;noreply@example.com&quot;,
+  &quot;smtp_pass&quot;: &quot;***&quot;,
+  &quot;smtp_from&quot;: &quot;noreply@example.com&quot;
+}
+</code></pre>
+<h4>PUT /api/admin/settings</h4>
+<p>Update settings.</p>
+<p><strong>Request Body</strong>:</p>
+<pre><code class="language-json">{
+  &quot;app_name&quot;: &quot;New Name&quot;,
+  &quot;primary_color&quot;: &quot;#EF4444&quot;
+}
+</code></pre>
+<p><strong>Response</strong>: <code>200 OK</code></p>
+<h4>POST /api/admin/settings/test-smtp</h4>
+<p>Test the SMTP configuration (sends a test email).</p>
+<p><strong>Success Response</strong>: <code>200 OK</code></p>
+<pre><code class="language-json">{ &quot;message&quot;: &quot;Test email sent successfully&quot; }
+</code></pre>
+<p><strong>Error Response</strong>: <code>500 Internal Server Error</code></p>
+<pre><code class="language-json">{ &quot;error&quot;: &quot;Send failed: SMTP connection refused&quot; }
+</code></pre>
+<h4>POST /api/admin/settings/upload-logo</h4>
+<p>Upload a logo.</p>
+<p><strong>Content-Type</strong>: <code>multipart/form-data</code></p>
+<p><strong>Body</strong>: <code>logo</code> field containing the image.</p>
+<p><strong>Response</strong>: <code>200 OK</code></p>
+<pre><code class="language-json">{ &quot;url&quot;: &quot;/uploads/logo.png&quot; }
+</code></pre>
+<h4>GET /api/admin/settings/public</h4>
+<p>Public settings (also accessible without authentication via <code>GET /api/settings/public</code>).</p>
+<hr>
+<h2>Endpoint Summary</h2>
+<h3>Public Endpoints (10)</h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>GET</td>
+<td><code>/api/health</code></td>
+<td>Health check</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/resources</code></td>
+<td>List active resources</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/resources/:id/slots</code></td>
+<td>Available time slots</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/resources/:id/fields</code></td>
+<td>Custom fields for a resource</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/resources/bookings/public</code></td>
+<td>Public bookings</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/resources/blocks/public</code></td>
+<td>Public blocks</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/bookings</code></td>
+<td>Create a booking</td>
+</tr>
+<tr>
+<td>DELETE</td>
+<td><code>/api/bookings/:token</code></td>
+<td>Cancel via token</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/auth/login</code></td>
+<td>Admin login</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/settings/public</code></td>
+<td>Public settings</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/upload</code></td>
+<td>File upload</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/geocode</code></td>
+<td>Address geocoding</td>
+</tr>
+</tbody></table>
+<h3>Admin Endpoints (22)</h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Endpoint</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>GET</td>
+<td><code>/api/admin/bookings</code></td>
+<td>List bookings (filters + pagination)</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/admin/bookings</code></td>
+<td>Create booking (admin)</td>
+</tr>
+<tr>
+<td>PUT</td>
+<td><code>/api/admin/bookings/:id</code></td>
+<td>Update booking</td>
+</tr>
+<tr>
+<td>DELETE</td>
+<td><code>/api/admin/bookings/:id</code></td>
+<td>Cancel booking (soft delete)</td>
+</tr>
+<tr>
+<td>DELETE</td>
+<td><code>/api/admin/bookings/:id/permanent</code></td>
+<td>Permanently delete booking</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/admin/booking-values/:bookingId</code></td>
+<td>Custom field values</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/admin/resources</code></td>
+<td>List resources</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/admin/resources</code></td>
+<td>Create resource</td>
+</tr>
+<tr>
+<td>PUT</td>
+<td><code>/api/admin/resources/:id</code></td>
+<td>Update resource</td>
+</tr>
+<tr>
+<td>DELETE</td>
+<td><code>/api/admin/resources/:id</code></td>
+<td>Delete resource</td>
+</tr>
+<tr>
+<td>PUT</td>
+<td><code>/api/admin/resources-reorder</code></td>
+<td>Reorder resources</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/admin/slots</code></td>
+<td>Define time slots</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/admin/blocks</code></td>
+<td>List blocks</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/admin/blocks</code></td>
+<td>Create block</td>
+</tr>
+<tr>
+<td>PUT</td>
+<td><code>/api/admin/blocks/:id</code></td>
+<td>Update block <em>(V1.1)</em></td>
+</tr>
+<tr>
+<td>DELETE</td>
+<td><code>/api/admin/blocks/:id</code></td>
+<td>Delete block</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/admin/settings</code></td>
+<td>Read settings</td>
+</tr>
+<tr>
+<td>PUT</td>
+<td><code>/api/admin/settings</code></td>
+<td>Update settings</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/admin/settings/test-smtp</code></td>
+<td>Test SMTP</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/admin/settings/upload-logo</code></td>
+<td>Upload logo</td>
+</tr>
+<tr>
+<td>GET</td>
+<td><code>/api/admin/custom-fields</code></td>
+<td>List custom fields</td>
+</tr>
+<tr>
+<td>POST</td>
+<td><code>/api/admin/custom-fields</code></td>
+<td>Create field</td>
+</tr>
+<tr>
+<td>PUT</td>
+<td><code>/api/admin/custom-fields/:id</code></td>
+<td>Update field</td>
+</tr>
+<tr>
+<td>DELETE</td>
+<td><code>/api/admin/custom-fields/:id</code></td>
+<td>Delete field</td>
+</tr>
+<tr>
+<td>PUT</td>
+<td><code>/api/admin/custom-fields-reorder</code></td>
+<td>Reorder fields</td>
+</tr>
+</tbody></table>
+<h3>HTTP Response Codes</h3>
+<table>
+<thead>
+<tr>
+<th>Code</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>200</code></td>
+<td>Success</td>
+</tr>
+<tr>
+<td><code>201</code></td>
+<td>Successfully created</td>
+</tr>
+<tr>
+<td><code>400</code></td>
+<td>Invalid request (validation)</td>
+</tr>
+<tr>
+<td><code>401</code></td>
+<td>Not authenticated (JWT missing or expired)</td>
+</tr>
+<tr>
+<td><code>404</code></td>
+<td>Resource not found</td>
+</tr>
+<tr>
+<td><code>409</code></td>
+<td>Conflict (booking overlap)</td>
+</tr>
+<tr>
+<td><code>413</code></td>
+<td>File too large</td>
+</tr>
+<tr>
+<td><code>500</code></td>
+<td>Server error</td>
+</tr>
+</tbody></table>
+  </div></main></div></body></html>

@@ -1,0 +1,223 @@
+<!DOCTYPE html><html lang="en"><head>  <meta charset="UTF-8">  <meta name="viewport" content="width=device-width, initial-scale=1.0">  <title>CHANGELOG — Booking System Documentation</title>  <link rel="stylesheet" href="style.css"></head><body><button class="menu-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')">&#9776;</button><div class="layout">  <aside class="sidebar">    <div class="sidebar-logo">Booking System<small>Documentation V1.1</small></div>    <nav><a href="index.html">Home</a><div class="section-title">Guides</div><a href="custom-fields.html">Custom Fields</a><a href="responsive.html">Responsive Design</a><div class="section-title">Reference</div><a href="api-reference.html">API Reference</a><a href="changelog.html">Changelog</a></nav>  </aside>  <main class="main"><div class="content"><h1>CHANGELOG — Booking System</h1>
+<p>Version change history.</p>
+<hr>
+<h2>V1.1 — April 2026</h2>
+<h3>Sprint 08: Custom Fields, i18n, File Uploads</h3>
+<p><strong>Internationalization (i18n)</strong></p>
+<ul>
+<li>Support for 13 languages: en, fr, de, es, it, pt, nl, pl, ru, ar, ja, zh, tr</li>
+<li>All frontend strings translated, including upload error messages</li>
+</ul>
+<p><strong>19 Custom Field Types</strong></p>
+<ul>
+<li>Available types: <code>text</code>, <code>textarea</code>, <code>number</code>, <code>select</code>, <code>multi-select</code>, <code>radio</code>, <code>date</code>, <code>time</code>, <code>datetime-local</code>, <code>email</code>, <code>tel</code>, <code>url</code>, <code>color</code>, <code>range</code>, <code>file</code>, <code>checkbox</code>, <code>hidden</code>, <code>address</code>, <code>video</code></li>
+<li>Each resource can have its own custom fields configured via the admin panel (AdminResources)</li>
+</ul>
+<p><strong>File and Image Uploads</strong></p>
+<ul>
+<li>Upload to MinIO (S3-compatible) with real-time preview</li>
+<li>Width (W) and height (H) controls for images</li>
+<li>Size limit: 10 MB per file</li>
+<li>Restricted file types (configurable list)</li>
+<li>Error messages translated into all 13 languages: file too large, file type not allowed</li>
+<li>Nginx configuration: <code>client_max_body_size</code> set to <code>10m</code> to support uploads</li>
+</ul>
+<p><strong>Value Display in the Detail Modal</strong></p>
+<ul>
+<li>Image preview (with URL detection: common extensions, picsum.photos, unsplash, etc.)</li>
+<li>Video embed</li>
+<li>Address formatting</li>
+<li>Color swatch</li>
+<li>Multi-select formatting</li>
+<li>Yes/No translation for checkboxes</li>
+</ul>
+<p><strong>Fixes and Improvements</strong></p>
+<ul>
+<li>Fixed multi-select validation: support for JSON arrays and comma-separated values</li>
+<li>Improved image URL detection (supports picsum.photos, unsplash, etc.)</li>
+</ul>
+<p><strong>Demo Data</strong></p>
+<ul>
+<li><code>seed-demo.js</code>: rich data (6 resources, 31 custom fields, 25 bookings with Lorem Picsum images)</li>
+<li>Makefile commands: <code>make seed-demo</code>, <code>make reset-demo</code></li>
+</ul>
+<hr>
+<h3>Sprint 09: Responsive Design</h3>
+<p><strong>Responsive Breakpoints</strong></p>
+<ul>
+<li><code>isMobile</code>: &lt; 640px (phone)</li>
+<li><code>isTablet</code>: 640-1023px (tablet)</li>
+<li>Desktop: &gt;= 1024px</li>
+</ul>
+<p><strong>Toolbar</strong></p>
+<ul>
+<li>View selector as a dropdown <code>&lt;select&gt;</code> on mobile (replaces buttons)</li>
+<li>Compact navigation buttons</li>
+<li>Print button hidden on mobile</li>
+</ul>
+<p><strong>Calendar Views on Mobile</strong></p>
+<ul>
+<li>Only Month and Day views are available on phone</li>
+<li>Automatic switching: week, timeline, and resourceTimeGrid views redirect to Day view on mobile</li>
+<li>Single-letter day names on mobile (M, T, W, T, F, S, S)</li>
+</ul>
+<p><strong>Month View on Mobile</strong></p>
+<ul>
+<li>Colored dots instead of event pills</li>
+<li>Bottom sheet on day tap to display details</li>
+</ul>
+<p><strong>Day View on Mobile</strong></p>
+<ul>
+<li>Tap on an event = display details (modal)</li>
+<li>Tap on an empty cell = create a 1-hour booking</li>
+</ul>
+<p><strong>Event Pills</strong></p>
+<ul>
+<li>Larger text, client name displayed on mobile</li>
+<li><code>EventActions</code> hidden on mobile (<code>hidden sm:inline-flex</code>)</li>
+</ul>
+<p><strong>Touch Navigation</strong></p>
+<ul>
+<li>Swipe left/right to navigate between periods (previous/next)</li>
+<li>Drag disabled on mobile, replaced by tap-to-create</li>
+<li>Touch drag support for tablets (<code>addDragListeners</code>/<code>removeDragListeners</code> with touch events)</li>
+<li><code>getPointerCoords()</code> normalizes mouse and touch events</li>
+</ul>
+<p><strong>Forms and Modals</strong></p>
+<ul>
+<li><code>BookingForm</code>: date/time grid in single column on mobile, reduced padding</li>
+<li>Detail modal: single column on mobile</li>
+<li>Resource selector: horizontal scroll on mobile</li>
+<li>Action buttons: stacked vertically on mobile</li>
+<li>Image size controls (W/H sliders): stacked vertically on mobile</li>
+</ul>
+<p><strong>Hamburger Menu</strong></p>
+<ul>
+<li>Hamburger menu in the <code>App.vue</code> navbar</li>
+</ul>
+<p><strong>Responsive Admin Pages</strong></p>
+<ul>
+<li><code>AdminDashboard</code>: hidden columns, horizontally scrollable table</li>
+<li><code>AdminResources</code>: responsive modals and grids</li>
+<li><code>AdminBlocks</code>: scrollable and responsive form</li>
+<li><code>AdminSettings</code>: reduced padding</li>
+<li><code>AdminLogin</code>: adaptive margins</li>
+</ul>
+<p><strong>CSS</strong></p>
+<ul>
+<li><code>month-cell</code>: min-height 56px</li>
+<li><code>day-hour</code>: 44px width</li>
+<li><code>event-pill</code>: min-height 22px</li>
+<li>Reduced timeline labels</li>
+<li><code>scrollbar-hide</code> utility</li>
+</ul>
+<hr>
+<h3>Sprint 10: Blocks and Bug Fixes</h3>
+<p><strong>Block Update Endpoint</strong></p>
+<ul>
+<li>New endpoint: <code>PUT /api/admin/blocks/:id</code></li>
+<li><code>updateBlock()</code> method added to the admin store</li>
+</ul>
+<p><strong>Block Editing in the Interface</strong></p>
+<ul>
+<li>Edit button in <code>AdminBlocks</code></li>
+<li>Pre-filled modal for editing an existing block</li>
+</ul>
+<p><strong>Timezone Fix</strong></p>
+<ul>
+<li>Blocks are now saved with correct local-to-UTC conversion (<code>toLocalISO</code>)</li>
+</ul>
+<p><strong>Improved Block Display</strong></p>
+<ul>
+<li>Multi-day blocks display the hatched pattern on ALL covered days (not just the start day)</li>
+<li>Blocks are rendered in ALL calendar views:<ul>
+<li>Month view: red indicator bar</li>
+<li>Week and Day views: hatching</li>
+<li>Timeline view: horizontal hatching</li>
+<li>ResourceTimeGrid and ResourceDayGrid views: hatching</li>
+</ul>
+</li>
+</ul>
+<p><strong>Drag &amp; Drop Fixes</strong></p>
+<ul>
+<li>Timeline drag-to-move: cancellation if the drop occurs outside a valid cell (<code>overValidCell</code> check)</li>
+</ul>
+<p><strong>Visual Improvements</strong></p>
+<ul>
+<li><code>EventActions</code>: icons enlarged to <code>w-3.5 h-3.5</code>, min-width/min-height 14px</li>
+<li>Timeline event pills: content centered with <code>justify-center</code></li>
+</ul>
+<hr>
+<h3>Sprint 11: Pagination, Search, Admin Improvements</h3>
+<p><strong>Pagination (API + Frontend)</strong></p>
+<ul>
+<li><code>GET /api/admin/bookings</code>: already paginated (limit/offset)</li>
+<li><code>GET /api/admin/blocks</code>: paginated with <code>findAndCountAll</code> (limit/offset)</li>
+<li><code>GET /api/admin/resources</code>: paginated when <code>page</code> param is provided, backward-compatible (returns all without <code>page</code>)</li>
+<li>URL persistence for all admin pages: filters, search, and page number saved in query params</li>
+</ul>
+<p><strong>AdminDashboard</strong></p>
+<ul>
+<li>Filters and pagination persisted in URL (<code>?status=confirmed&amp;resource_id=18&amp;page=2</code>)</li>
+<li>Restored on page refresh</li>
+<li><strong>Restore button</strong>: cancelled bookings can be set back to <code>confirmed</code></li>
+<li><strong>Delete button</strong>: permanent deletion of a booking (removes booking, custom field values, and MinIO files)</li>
+<li>New API endpoint: <code>DELETE /api/admin/bookings/:id/permanent</code></li>
+</ul>
+<p><strong>AdminBlocks</strong></p>
+<ul>
+<li>Resource filter dropdown</li>
+<li>Pagination (20 per page) with Prev/Next buttons</li>
+<li>URL persistence (<code>?resource_id=18&amp;page=2</code>)</li>
+</ul>
+<p><strong>AdminResources</strong></p>
+<ul>
+<li>Search bar (filters by name, <code>iLike</code> on API)</li>
+<li>Pagination (20 per page) with Prev/Next buttons</li>
+<li>URL persistence (<code>?search=hair&amp;page=2</code>)</li>
+</ul>
+<p><strong>Translations</strong></p>
+<ul>
+<li><code>admin.restore</code> added in 13 languages</li>
+<li><code>resources.search</code> added in 13 languages</li>
+</ul>
+<hr>
+<h2>V1.0 — March 2026</h2>
+<p>Initial release. Sprints 01 through 07:</p>
+<table>
+<thead>
+<tr>
+<th>Sprint</th>
+<th>Content</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Sprint 01</td>
+<td>Public calendar (month/week/day views, navigation)</td>
+</tr>
+<tr>
+<td>Sprint 02</td>
+<td>Client booking flow (form, validation, cancellation by token, 409 conflict detection)</td>
+</tr>
+<tr>
+<td>Sprint 03</td>
+<td>Admin dashboard (JWT auth, resource CRUD, time slots)</td>
+</tr>
+<tr>
+<td>Sprint 04</td>
+<td>SMTP email notifications (confirmation, admin notification) + block management</td>
+</tr>
+<tr>
+<td>Sprint 05</td>
+<td>Settings page (name, logo, colors, SMTP, iframe widget) + D-1 reminder</td>
+</tr>
+<tr>
+<td>Sprint 06</td>
+<td>Premium calendar (3 resource views, drag-to-select/move/resize, multi-day, overlap, EventActions)</td>
+</tr>
+<tr>
+<td>Sprint 07</td>
+<td>Docker infrastructure (PostgreSQL 16, Mailpit, nginx, Makefile, seed)</td>
+</tr>
+</tbody></table>
+  </div></main></div></body></html>

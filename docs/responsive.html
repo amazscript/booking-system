@@ -1,0 +1,401 @@
+<!DOCTYPE html><html lang="en"><head>  <meta charset="UTF-8">  <meta name="viewport" content="width=device-width, initial-scale=1.0">  <title>responsive — Booking System Documentation</title>  <link rel="stylesheet" href="style.css"></head><body><button class="menu-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')">&#9776;</button><div class="layout">  <aside class="sidebar">    <div class="sidebar-logo">Booking System<small>Documentation V1.1</small></div>    <nav><a href="index.html">Home</a><div class="section-title">Guides</div><a href="custom-fields.html">Custom Fields</a><a href="responsive.html" class="active">Responsive Design</a><div class="section-title">Reference</div><a href="api-reference.html">API Reference</a><a href="changelog.html">Changelog</a></nav>  </aside>  <main class="main"><div class="content"><h1>Responsive Design — Booking System</h1>
+<p>Documentation for the responsive strategy introduced in V1.1 (Sprint 09).</p>
+<hr>
+<h2>Breakpoint Strategy</h2>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Range</th>
+<th>Reactive Variable</th>
+<th>Target Devices</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Mobile</strong></td>
+<td>&lt; 640px</td>
+<td><code>isMobile = true</code></td>
+<td>Phones (iPhone, Android)</td>
+</tr>
+<tr>
+<td><strong>Tablet</strong></td>
+<td>640px - 1023px</td>
+<td><code>isTablet = true</code></td>
+<td>iPad, Android tablets</td>
+</tr>
+<tr>
+<td><strong>Desktop</strong></td>
+<td>&gt;= 1024px</td>
+<td><code>isMobile = false</code>, <code>isTablet = false</code></td>
+<td>Desktop computers, laptops</td>
+</tr>
+</tbody></table>
+<p>Breakpoints are computed reactively and updated on window resize.</p>
+<hr>
+<h2>Adaptations by Breakpoint</h2>
+<h3>Toolbar (Calendar Toolbar)</h3>
+<table>
+<thead>
+<tr>
+<th>Element</th>
+<th>Mobile (&lt; 640px)</th>
+<th>Tablet (640-1023px)</th>
+<th>Desktop (&gt;= 1024px)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>View selector</td>
+<td>Dropdown <code>&lt;select&gt;</code></td>
+<td>Buttons</td>
+<td>Buttons</td>
+</tr>
+<tr>
+<td>Navigation buttons</td>
+<td>Compact</td>
+<td>Compact</td>
+<td>Full</td>
+</tr>
+<tr>
+<td>Print button</td>
+<td>Hidden</td>
+<td>Visible</td>
+<td>Visible</td>
+</tr>
+<tr>
+<td>Today button</td>
+<td>Visible</td>
+<td>Visible</td>
+<td>Visible</td>
+</tr>
+</tbody></table>
+<h3>Available Views</h3>
+<table>
+<thead>
+<tr>
+<th>View</th>
+<th>Mobile</th>
+<th>Tablet</th>
+<th>Desktop</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Month</td>
+<td>Yes (adapted)</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Week</td>
+<td>No (redirects to Day)</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Day</td>
+<td>Yes (adapted)</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Resource Timeline</td>
+<td>No (redirects to Day)</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Resource DayGrid</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td>Resource TimeGrid</td>
+<td>No (redirects to Day)</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+</tbody></table>
+<p>Redirection is automatic: if the user is on an unsupported view and resizes the window to mobile, the view automatically switches to Day.</p>
+<h3>Day Names</h3>
+<table>
+<thead>
+<tr>
+<th>Breakpoint</th>
+<th>Format</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Mobile</td>
+<td>1 letter</td>
+<td>M, T, W, T, F, S, S</td>
+</tr>
+<tr>
+<td>Tablet/Desktop</td>
+<td>Full or abbreviated</td>
+<td>Mon, Tue, Wed, Thu, Fri, Sat, Sun</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>Month View on Mobile</h2>
+<p>On mobile, the Month view is completely redesigned:</p>
+<h3>Colored Dots (Replace Event Pills)</h3>
+<p>Instead of displaying event pills (which would take up too much space), each day displays small colored dots. The color corresponds to the booking&#39;s resource.</p>
+<h3>Bottom Sheet on Tap</h3>
+<p>When the user taps on a day:</p>
+<ol>
+<li>A <strong>bottom sheet</strong> slides up from the bottom of the screen</li>
+<li>It displays the list of events for the selected day</li>
+<li>Each event can be tapped to view its details</li>
+</ol>
+<h3>CSS Dimensions</h3>
+<ul>
+<li>Month cell: <code>min-height: 56px</code></li>
+</ul>
+<hr>
+<h2>Day View on Mobile</h2>
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Tap on an event</td>
+<td>Opens the detail modal (eye icon)</td>
+</tr>
+<tr>
+<td>Tap on an empty cell</td>
+<td>Creates a 1-hour booking at that time slot</td>
+</tr>
+</tbody></table>
+<h3>CSS Dimensions</h3>
+<ul>
+<li>Hour cell: <code>44px</code> width</li>
+<li>Event pill: <code>min-height: 22px</code></li>
+</ul>
+<hr>
+<h2>Touch Interactions</h2>
+<h3>Swipe (Navigation)</h3>
+<table>
+<thead>
+<tr>
+<th>Gesture</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Swipe left</td>
+<td>Next period (next month/week/day)</td>
+</tr>
+<tr>
+<td>Swipe right</td>
+<td>Previous period</td>
+</tr>
+</tbody></table>
+<p>Swipe works on all views and all mobile/tablet breakpoints.</p>
+<h3>Tap-to-Create (Mobile Only)</h3>
+<p>On mobile, drag-to-select is disabled. Instead:</p>
+<ul>
+<li><strong>Day view</strong>: tap on an empty cell = create a 1-hour booking</li>
+</ul>
+<h3>Tap-to-View (Mobile Only)</h3>
+<ul>
+<li><strong>Day view</strong>: tap on an event = open the detail modal</li>
+<li><strong>Month view</strong>: tap on a day = bottom sheet with the event list</li>
+</ul>
+<h3>Touch Drag (Tablet Only)</h3>
+<p>On tablet, drag &amp; drop remains functional thanks to touch support:</p>
+<ul>
+<li><code>addDragListeners()</code>: registers <code>touchstart</code>, <code>touchmove</code>, <code>touchend</code> listeners</li>
+<li><code>removeDragListeners()</code>: cleans up listeners on component unmount</li>
+<li><code>getPointerCoords()</code>: utility function that normalizes coordinates between:<ul>
+<li><code>MouseEvent</code> (desktop): uses <code>clientX</code>, <code>clientY</code></li>
+<li><code>TouchEvent</code> (tablet): uses <code>touches[0].clientX</code>, <code>touches[0].clientY</code></li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2>Event Pills</h2>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Mobile</th>
+<th>Desktop</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Text size</td>
+<td>Larger (readability)</td>
+<td>Standard size</td>
+</tr>
+<tr>
+<td>Displayed content</td>
+<td>Client name</td>
+<td>Client name + time</td>
+</tr>
+<tr>
+<td>EventActions (icons)</td>
+<td>Hidden (<code>hidden sm:inline-flex</code>)</td>
+<td>Visible (eye, pencil, trash)</td>
+</tr>
+<tr>
+<td>Min-height</td>
+<td>22px</td>
+<td>Standard</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>Hamburger Menu</h2>
+<p>In the navbar (<code>App.vue</code>), a hamburger menu replaces horizontal navigation on mobile:</p>
+<ul>
+<li><strong>Visible</strong>: on mobile only (&lt; 640px)</li>
+<li><strong>Content</strong>: links to admin pages (Dashboard, Resources, Blocks, Settings)</li>
+<li><strong>Behavior</strong>: tap to open/close the menu</li>
+</ul>
+<hr>
+<h2>Forms and Modals</h2>
+<h3>BookingForm</h3>
+<table>
+<thead>
+<tr>
+<th>Element</th>
+<th>Mobile</th>
+<th>Desktop</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Date/time grid</td>
+<td>1 column</td>
+<td>2 columns side by side</td>
+</tr>
+<tr>
+<td>Padding</td>
+<td>Reduced</td>
+<td>Standard</td>
+</tr>
+<tr>
+<td>Image size sliders (W/H)</td>
+<td>Stacked vertically</td>
+<td>Side by side</td>
+</tr>
+</tbody></table>
+<h3>Detail Modal</h3>
+<table>
+<thead>
+<tr>
+<th>Element</th>
+<th>Mobile</th>
+<th>Desktop</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Layout</td>
+<td>1 column</td>
+<td>2 columns</td>
+</tr>
+</tbody></table>
+<h3>Resource Selector</h3>
+<table>
+<thead>
+<tr>
+<th>Breakpoint</th>
+<th>Behavior</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Mobile</td>
+<td>Horizontal scroll (overflow-x)</td>
+</tr>
+<tr>
+<td>Desktop</td>
+<td>Full display, line wrapping</td>
+</tr>
+</tbody></table>
+<h3>Action Buttons</h3>
+<table>
+<thead>
+<tr>
+<th>Breakpoint</th>
+<th>Layout</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Mobile</td>
+<td>Stacked vertically (flex-col)</td>
+</tr>
+<tr>
+<td>Desktop</td>
+<td>Side by side (flex-row)</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>Responsive Admin Pages</h2>
+<table>
+<thead>
+<tr>
+<th>Page</th>
+<th>Mobile Adaptations</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>AdminDashboard</code></td>
+<td>Secondary columns hidden, horizontally scrollable table</td>
+</tr>
+<tr>
+<td><code>AdminResources</code></td>
+<td>Responsive modals and grids (adaptive columns)</td>
+</tr>
+<tr>
+<td><code>AdminBlocks</code></td>
+<td>Scrollable form, responsive layout</td>
+</tr>
+<tr>
+<td><code>AdminSettings</code></td>
+<td>Reduced padding</td>
+</tr>
+<tr>
+<td><code>AdminLogin</code></td>
+<td>Adaptive margins</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>CSS Utilities</h2>
+<h3><code>scrollbar-hide</code> Class</h3>
+<p>Hides scrollbars while preserving scroll functionality:</p>
+<pre><code class="language-css">.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+</code></pre>
+<h3>Key Dimensions</h3>
+<table>
+<thead>
+<tr>
+<th>Element</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Month cell (mobile)</td>
+<td>min-height: 56px</td>
+</tr>
+<tr>
+<td>Day hour cell (mobile)</td>
+<td>44px width</td>
+</tr>
+<tr>
+<td>Event pill (mobile)</td>
+<td>min-height: 22px</td>
+</tr>
+<tr>
+<td>Timeline labels (mobile)</td>
+<td>Reduced size</td>
+</tr>
+</tbody></table>
+  </div></main></div></body></html>

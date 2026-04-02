@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Environment
+.env
+api/.env
+
+# Build
+frontend/dist/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Docker volumes
+booking_pgdata/
+
+# Misc
+*.sqlite
