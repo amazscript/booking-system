@@ -12,27 +12,153 @@ The custom fields system allows each resource to have its own booking form. An a
 
 ## The 19 Field Types
 
-| Type | HTML Input | Storage Format | Display in Modal | Validation |
-|---|---|---|---|---|
-| `text` | `<input type="text">` | Plain text | Text | Required if set |
-| `textarea` | `<textarea>` | Plain text (multiline) | Multiline text | Required if set |
-| `number` | `<input type="number">` | Number (string) | Number | Required if set, min/max if configured |
-| `select` | `<select>` | Selected option value | Option text | Required if set |
-| `multi-select` | `<select multiple>` | JSON array (`["a","b"]`) or comma-separated values (`"a,b"`) | Formatted list (bullets or commas) | Required if set, at least 1 value |
-| `radio` | `<input type="radio">` | Selected option value | Option text | Required if set |
-| `date` | `<input type="date">` | ISO format `YYYY-MM-DD` | Formatted date | Required if set |
-| `time` | `<input type="time">` | Format `HH:MM` | Formatted time | Required if set |
-| `datetime-local` | `<input type="datetime-local">` | ISO format `YYYY-MM-DDTHH:MM` | Formatted date and time | Required if set |
-| `email` | `<input type="email">` | Text (email address) | Mailto link | Required if set, email format |
-| `tel` | `<input type="tel">` | Text (phone number) | Tel link | Required if set |
-| `url` | `<input type="url">` | Text (URL) | Clickable link | Required if set, URL format |
-| `color` | `<input type="color">` | Hex code (`#FF0000`) | Color swatch | Required if set |
-| `range` | `<input type="range">` | Number (string) | Numeric value | Required if set, min/max |
-| `file` | `<input type="file">` | File URL (MinIO path) | Image preview or download link | Required if set, max size 10 MB, restricted types |
-| `checkbox` | `<input type="checkbox">` | `"true"` or `"false"` | Yes/No (translated per language) | No specific validation |
-| `hidden` | `<input type="hidden">` | Plain text | Not displayed | None |
-| `address` | Enhanced text field | Text (full address) | Formatted address | Required if set |
-| `video` | Video URL field | Video URL (YouTube, Vimeo, etc.) | Embedded video (iframe) | Required if set, URL format |
+| Type | Display | Storage | Modal Display |
+|---|---|---|---|
+| `text` | Text input | Plain text | Text |
+| `textarea` | Multi-line text area | Plain text | Full-width text block |
+| `number` | Number input | Number as string | Number |
+| `select` | Dropdown (1 choice) | Option value (`"haircut"`) | Option label (`"Haircut"`) |
+| `multi-select` | Checkboxes (multiple choices) | Comma-separated (`"yoga,pilates"`) | Blue tags |
+| `radio` | Radio buttons (1 choice) | Option value (`"beginner"`) | Option label (`"Beginner"`) |
+| `date` | Date picker | `YYYY-MM-DD` | Formatted date |
+| `time` | Time picker | `HH:MM` | Formatted time |
+| `datetime-local` | Date + time picker | `YYYY-MM-DDTHH:MM` | Formatted date and time |
+| `email` | Email input | Email string | Email text |
+| `tel` | Phone input | Phone string | Phone text |
+| `url` | URL input | URL string | Clickable link |
+| `color` | Color picker | Hex (`#FF0000`) | Color swatch + hex code |
+| `range` | Slider | Number as string | Number |
+| `file` | File upload (MinIO) | JSON `{"url","w","h"}` | Image preview or file link |
+| `checkbox` | Toggle checkbox | `"true"` / `"false"` | Yes/No (translated) |
+| `hidden` | Not visible | Plain text | Not displayed |
+| `address` | Address autocomplete | JSON `{"street","city","postcode","country"}` | Formatted address |
+| `video` | URL input | YouTube/Vimeo/Dailymotion URL | Embedded video player |
+
+---
+
+## Options Format (select, multi-select, radio)
+
+The three choice-based field types (`select`, `multi-select`, `radio`) use the same options format.
+
+### Basic format (label only)
+
+One option per line:
+
+```
+Beginner
+Intermediate
+Advanced
+```
+
+This creates options where the label and value are derived from the text.
+
+### Full format (label + duration + price)
+
+```
+Label|duration_in_minutes|price
+```
+
+Example:
+
+```
+Haircut|30|25
+Coloring|90|60
+Highlights|120|80
+```
+
+| Part | Meaning | Required |
+|---|---|---|
+| `Haircut` | Label displayed to the client | Yes |
+| `30` | Duration in minutes (auto-adjusts booking end time) | No |
+| `25` | Price (displayed next to the option) | No |
+
+Duration and price are optional. These all work:
+
+```
+Haircut|30|25       → Label: Haircut, Duration: 30min, Price: 25
+Haircut|30          → Label: Haircut, Duration: 30min, no price
+Haircut             → Label: Haircut, no duration, no price
+```
+
+### How options are stored
+
+Options are stored as JSON in the `custom_fields.options` column:
+
+```json
+[
+  { "label": "Haircut", "value": "haircut", "duration": 30, "price": 25 },
+  { "label": "Coloring", "value": "coloring", "duration": 90, "price": 60 },
+  { "label": "Highlights", "value": "highlights", "duration": 120, "price": 80 }
+]
+```
+
+The `value` is auto-generated from the label (lowercase, spaces replaced with hyphens).
+
+### How selected values are stored
+
+When a client selects an option, only the `value` is stored in `booking_values.value`:
+
+- **select/radio**: `"haircut"` (single value)
+- **multi-select**: `"yoga,pilates,meditation"` (comma-separated)
+
+### How values are displayed in the detail modal
+
+The modal resolves the stored value back to the label using the field's options:
+
+- `"haircut"` → displays `"Haircut"`
+- `"yoga,pilates"` → displays `[Yoga] [Pilates]` (blue tags)
+
+### Example: Hair Salon
+
+**Admin creates the field:**
+
+- Field label: `Service`
+- Type: `Dropdown`
+- Required: Yes
+- Options:
+```
+Haircut|30|25
+Coloring|90|60
+Highlights|120|80
+```
+
+**Client books:**
+- Selects "Coloring" from the dropdown
+- Booking end time automatically adjusts +90 minutes
+- Value stored in DB: `"coloring"`
+
+**Admin views booking:**
+- Modal shows: `Service: Coloring`
+
+### Example: Fitness Coach
+
+**Admin creates the field:**
+
+- Field label: `Goals`
+- Type: `Multi-select`
+- Required: Yes
+- Options:
+```
+Weight loss
+Muscle gain
+Flexibility
+Endurance
+```
+
+**Client books:**
+- Checks "Weight loss" and "Flexibility"
+- Value stored in DB: `"weight-loss,flexibility"`
+
+**Admin views booking:**
+- Modal shows: `Goals: [Weight loss] [Flexibility]`
+
+### Difference between select, multi-select, and radio
+
+| Type | Choices | Display | Use case |
+|---|---|---|---|
+| **Dropdown** (select) | 1 only | Dropdown menu | Many options, pick one (e.g., Service) |
+| **Radio** | 1 only | Visible radio buttons | Few options, pick one (e.g., Level) |
+| **Multi-select** | Multiple | Checkboxes | Pick several (e.g., Allergies, Goals) |
 
 ---
 
