@@ -31,7 +31,7 @@ for md in "$DOCS_DIR"/*.md; do
       { href: 'custom-fields.html', label: 'Custom Fields', section: 'Guides' },
       { href: 'responsive.html', label: 'Responsive Design', section: 'Guides' },
       { href: 'api-reference.html', label: 'API Reference', section: 'Reference' },
-      { href: 'changelog.html', label: 'Changelog', section: 'Reference' },
+      { href: 'changelog.html', label: 'Changelog', section: 'Reference', file: 'changelog' },
     ];
 
     let sidebarHtml = '';
