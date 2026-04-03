@@ -91,14 +91,67 @@
 <li>Edit button with pre-filled form</li>
 </ul>
 <hr>
+<h3>Email System</h3>
+<p><strong>Translated Emails (13 languages)</strong></p>
+<ul>
+<li>Confirmation, admin notification, D-1 reminder, and cancellation emails translated</li>
+<li>Locale saved per booking and used for email rendering</li>
+<li>RTL support for Arabic emails</li>
+<li>Dates formatted per locale</li>
+</ul>
+<p><strong>Custom Fields in Emails</strong></p>
+<ul>
+<li>All custom field values included in every email (confirmation, notification, reminder, cancellation)</li>
+<li>Type-aware formatting: select/radio labels resolved, checkbox as Yes/No translated, multi-select as comma-separated labels, file as clickable link, address formatted, color with swatch, video/URL as links</li>
+<li>Hidden fields excluded from emails</li>
+</ul>
+<p><strong>Cancellation Notification</strong></p>
+<ul>
+<li>Admin receives an email when a client cancels via the email link</li>
+</ul>
+<hr>
+<h3>Public Booking Page</h3>
+<ul>
+<li>New <code>/</code> home page for clients (resource selector, date picker, slot picker, booking form, confirmation)</li>
+<li>Calendar moved behind auth guard at <code>/admin/calendar</code></li>
+<li>Admin navbar: Calendar link added</li>
+<li>Hamburger menu updated with calendar link</li>
+</ul>
+<hr>
+<h3>Security</h3>
+<ul>
+<li><strong>Helmet</strong>: 10+ secure HTTP headers (CSP, HSTS, X-Frame-Options, X-Content-Type-Options, etc.)</li>
+<li><strong>Rate limiting</strong>: login (5 attempts/15min), uploads (20/15min), global API (500/15min)</li>
+<li><strong>CORS</strong>: restricted to configured origins (<code>CORS_ORIGINS</code> or <code>BASE_URL</code>)</li>
+<li><strong>Role verification</strong>: <code>requireAdmin</code> middleware on all admin routes</li>
+<li><strong>JWT secret warning</strong>: console warning if using default secret</li>
+<li><strong>Auto-logout</strong>: axios interceptor redirects to <code>/login</code> on 401/403</li>
+<li><strong>Request guard</strong>: admin requests verify token in localStorage before sending</li>
+<li><strong>Token validation</strong>: on app startup, token is verified against the API</li>
+</ul>
+<hr>
 <h3>Bug Fixes</h3>
 <ul>
 <li>Multi-select validation: supports both JSON arrays and comma-separated values</li>
 <li>Options format parsing: <code>Label|duration|price</code> correctly separated</li>
 <li>No more <code>|||</code> artifacts when editing fields without duration/price</li>
+<li>Select/radio display: modal shows option label instead of raw value</li>
+<li>Multi-select display: blue tags with label resolution</li>
 <li>Timeline drag-to-move: cancelled when dropped outside valid area</li>
+<li>Timeline drag offset: accounts for cursor position relative to event start</li>
+<li>Week/day drag offset: same cursor offset fix</li>
+<li>Optimistic updates: move and resize update locally before API call (no visual jump)</li>
 <li>Event action icons: enlarged and properly centered in timeline view</li>
 <li>Image URL detection: supports picsum.photos, unsplash.com, etc.</li>
+<li>Mobile &quot;undefined&quot; fix: client_name checked before display</li>
+<li>Calendar month fetch: includes padding days (previous/next month visible in grid)</li>
+<li>Timezone fix: ±1 day padding on API queries to handle UTC offset for midnight events</li>
+<li>Resize constrained to same column in week view</li>
+<li>Timeline event overflow: events clipped to 24h when crossing midnight</li>
+<li>Date picker: click calendar title to jump to any date</li>
+<li>Popover resourceDayGrid: shows correct resource&#39;s events</li>
+<li>Resource selector: flex-wrap on desktop, no overflow</li>
+<li>Debounced resize listener: prevents multiple refetch during window resize</li>
 </ul>
 <hr>
 <h2>V1.0 — March 2026</h2>

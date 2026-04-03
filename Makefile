@@ -1,4 +1,4 @@
-.PHONY: help up down restart build logs status seed reset clean dev api frontend install test
+.PHONY: help up down restart build logs status seed reset clean fresh dev api frontend install test
 
 # ═══════════════════════════════════════
 # Booking System — Commandes
@@ -14,17 +14,20 @@ help: ## Afficher l'aide
 
 # ─── Docker ───────────────────────────
 
-up: ## Démarrer tous les services (Docker)
+up: ## Démarrer tous les services (Docker + MinIO)
+	docker start minio 2>/dev/null || docker run -d --name minio -p 9000:9000 -p 9001:9001 -e MINIO_ROOT_USER=hotelbot -e MINIO_ROOT_PASSWORD=hotelbot_secret minio/minio server /data --console-address ":9001"
 	docker compose up -d
 	@echo ""
 	@echo "  ✓ Frontend : http://localhost:5173"
 	@echo "  ✓ API      : http://localhost:3000"
+	@echo "  ✓ MinIO    : http://localhost:9001"
 	@echo "  ✓ Mailpit  : http://localhost:8025"
 	@echo "  ✓ PostgreSQL : localhost:5433"
 	@echo ""
 
 down: ## Arrêter tous les services
 	docker compose down
+	docker stop minio 2>/dev/null || true
 
 restart: ## Redémarrer tous les services
 	docker compose restart
@@ -103,6 +106,32 @@ clean-all: ## Supprimer images + volumes + cache
 	docker compose down -v --rmi all --remove-orphans
 	rm -rf api/node_modules frontend/node_modules frontend/dist api/db.sqlite
 	@echo "  ✓ Tout nettoyé"
+
+fresh: ## Reset total comme après un clone (stop + supprime tout + rebuild + seed)
+	@echo "  Nettoyage complet..."
+	docker compose down -v --remove-orphans 2>/dev/null || true
+	docker rm -f minio 2>/dev/null || true
+	docker volume rm booking_booking_pgdata 2>/dev/null || true
+	rm -rf api/node_modules frontend/node_modules frontend/dist node_modules
+	@echo "  Démarrage MinIO..."
+	docker start minio 2>/dev/null || docker run -d --name minio -p 9000:9000 -p 9001:9001 -e MINIO_ROOT_USER=hotelbot -e MINIO_ROOT_PASSWORD=hotelbot_secret minio/minio server /data --console-address ":9001"
+	@echo "  Rebuild..."
+	docker compose up -d --build
+	@echo "  Attente PostgreSQL..."
+	@sleep 5
+	docker compose exec api node seed.js
+	docker compose exec api node seed-demo.js
+	@echo "  Redémarrage API (connexion MinIO)..."
+	docker restart booking-api
+	@sleep 2
+	@echo ""
+	@echo "  ✓ Installation fraîche terminée"
+	@echo "  ✓ Frontend : http://localhost:5173"
+	@echo "  ✓ API      : http://localhost:3000"
+	@echo "  ✓ MinIO    : http://localhost:9001"
+	@echo "  ✓ Mailpit  : http://localhost:8025"
+	@echo "  ✓ Admin    : admin@booking.local / admin123"
+	@echo ""
 
 # ─── Emails ───────────────────────────
 

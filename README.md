@@ -32,36 +32,21 @@ A full-featured, multilingual booking/reservation system with a custom calendar,
 ### With Docker (recommended)
 
 ```bash
-# Start all services
-make up
+# Fresh install (everything from scratch: MinIO, PostgreSQL, API, Frontend, seed data)
+make fresh
 
-# Seed demo data (admin + 3 basic resources)
-make seed
-
-# Seed rich demo data (6 resources, 31 custom fields, 25 bookings with images)
-make seed-demo
+# Or step by step:
+make up           # Start all services (PostgreSQL, API, Frontend, Mailpit, MinIO)
+make seed         # Basic seed (admin + 3 resources)
+make seed-demo    # Rich demo data (6 resources, 31 custom fields, 25 bookings)
 ```
 
 Services:
 - **Frontend**: http://localhost:5173
 - **API**: http://localhost:3000
+- **MinIO** (file storage): http://localhost:9001
 - **Mailpit** (email UI): http://localhost:8025
 - **PostgreSQL**: localhost:5433
-
-### MinIO (file uploads)
-
-MinIO is not included in docker-compose. Start it separately:
-
-```bash
-docker run -d --name minio -p 9000:9000 -p 9001:9001 \
-  -e MINIO_ROOT_USER=hotelbot -e MINIO_ROOT_PASSWORD=hotelbot_secret \
-  minio/minio server /data --console-address ":9001"
-```
-
-Then restart the API: `docker restart booking-api`
-
-- **MinIO Console**: http://localhost:9001
-- **MinIO API**: http://localhost:9000
 
 ### Local Development (without Docker)
 
@@ -73,7 +58,7 @@ make install
 make dev
 ```
 
-Requires PostgreSQL on localhost:5433 and MinIO on localhost:9000.
+Requires PostgreSQL on localhost:5433. MinIO is started automatically by `make up`.
 
 ## Admin Access
 
@@ -141,7 +126,8 @@ booking/
 | GET | `/api/admin/bookings` | List bookings (filters, pagination) |
 | POST | `/api/admin/bookings` | Create booking (admin) |
 | PUT | `/api/admin/bookings/:id` | Update booking |
-| DELETE | `/api/admin/bookings/:id` | Delete booking |
+| DELETE | `/api/admin/bookings/:id` | Cancel booking (soft delete) |
+| DELETE | `/api/admin/bookings/:id/permanent` | Permanently delete booking |
 | GET | `/api/admin/booking-values/:id` | Custom field values for a booking |
 | GET/POST/PUT/DELETE | `/api/admin/resources/*` | CRUD resources |
 | POST | `/api/admin/resources/:id/slots` | Set time slots |
@@ -154,8 +140,8 @@ booking/
 | Type | Input | Storage |
 |------|-------|---------|
 | text, textarea, number, email, tel, url | Standard HTML input | String |
-| select, radio | Dropdown / radio buttons with options | Option value |
-| multi-select | Checkbox group | JSON array or comma-separated |
+| select, radio | Dropdown / radio buttons with options (`Label\|duration\|price`) | Option value |
+| multi-select | Checkbox group with options (`Label\|duration\|price`) | Comma-separated values |
 | date, time, datetime-local | Date/time pickers | ISO string |
 | color | Color picker | Hex code |
 | range | Slider | Number |
@@ -169,8 +155,8 @@ booking/
 
 ```
 make help           # Show all commands
-make up             # Start Docker services
-make down           # Stop services
+make up             # Start all services (Docker + MinIO)
+make down           # Stop all services (Docker + MinIO)
 make build          # Rebuild Docker images
 make logs           # View all logs
 make seed           # Basic seed (admin + 3 resources)
@@ -180,6 +166,7 @@ make db-shell       # PostgreSQL shell
 make dev            # Local dev (API + Frontend)
 make install        # Install dependencies
 make test           # Run API tests
+make fresh          # Full reset like a fresh clone (stop + clean + rebuild + MinIO + seed)
 make clean          # Remove Docker volumes
 make clean-all      # Remove everything (images, volumes, node_modules)
 make mail           # Open Mailpit in browser
@@ -222,6 +209,15 @@ VITE_API_URL=                # Defaults to /api (proxied by Vite/nginx)
 | < 640px (phone) | Hamburger menu, month dots + bottom sheet, day view only, tap-to-create, swipe navigation |
 | 640-1023px (tablet) | All 6 views, touch drag support |
 | >= 1024px (desktop) | Full mouse drag & drop, all features |
+
+## Security
+
+- **Helmet**: secure HTTP headers (CSP, HSTS, X-Frame-Options, etc.)
+- **Rate limiting**: 5 login attempts/15min, 20 uploads/15min, 500 API requests/15min
+- **CORS**: restricted to configured origins
+- **JWT**: HS256, 24h expiration, bcrypt password hashing
+- **Role verification**: admin role required for all admin endpoints
+- **Auto-logout**: invalid/expired tokens trigger automatic redirect to login
 
 ## License
 

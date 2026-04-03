@@ -89,14 +89,68 @@
 
 ---
 
+### Email System
+
+**Translated Emails (13 languages)**
+- Confirmation, admin notification, D-1 reminder, and cancellation emails translated
+- Locale saved per booking and used for email rendering
+- RTL support for Arabic emails
+- Dates formatted per locale
+
+**Custom Fields in Emails**
+- All custom field values included in every email (confirmation, notification, reminder, cancellation)
+- Type-aware formatting: select/radio labels resolved, checkbox as Yes/No translated, multi-select as comma-separated labels, file as clickable link, address formatted, color with swatch, video/URL as links
+- Hidden fields excluded from emails
+
+**Cancellation Notification**
+- Admin receives an email when a client cancels via the email link
+
+---
+
+### Public Booking Page
+
+- New `/` home page for clients (resource selector, date picker, slot picker, booking form, confirmation)
+- Calendar moved behind auth guard at `/admin/calendar`
+- Admin navbar: Calendar link added
+- Hamburger menu updated with calendar link
+
+---
+
+### Security
+
+- **Helmet**: 10+ secure HTTP headers (CSP, HSTS, X-Frame-Options, X-Content-Type-Options, etc.)
+- **Rate limiting**: login (5 attempts/15min), uploads (20/15min), global API (500/15min)
+- **CORS**: restricted to configured origins (`CORS_ORIGINS` or `BASE_URL`)
+- **Role verification**: `requireAdmin` middleware on all admin routes
+- **JWT secret warning**: console warning if using default secret
+- **Auto-logout**: axios interceptor redirects to `/login` on 401/403
+- **Request guard**: admin requests verify token in localStorage before sending
+- **Token validation**: on app startup, token is verified against the API
+
+---
+
 ### Bug Fixes
 
 - Multi-select validation: supports both JSON arrays and comma-separated values
 - Options format parsing: `Label|duration|price` correctly separated
 - No more `|||` artifacts when editing fields without duration/price
+- Select/radio display: modal shows option label instead of raw value
+- Multi-select display: blue tags with label resolution
 - Timeline drag-to-move: cancelled when dropped outside valid area
+- Timeline drag offset: accounts for cursor position relative to event start
+- Week/day drag offset: same cursor offset fix
+- Optimistic updates: move and resize update locally before API call (no visual jump)
 - Event action icons: enlarged and properly centered in timeline view
 - Image URL detection: supports picsum.photos, unsplash.com, etc.
+- Mobile "undefined" fix: client_name checked before display
+- Calendar month fetch: includes padding days (previous/next month visible in grid)
+- Timezone fix: ±1 day padding on API queries to handle UTC offset for midnight events
+- Resize constrained to same column in week view
+- Timeline event overflow: events clipped to 24h when crossing midnight
+- Date picker: click calendar title to jump to any date
+- Popover resourceDayGrid: shows correct resource's events
+- Resource selector: flex-wrap on desktop, no overflow
+- Debounced resize listener: prevents multiple refetch during window resize
 
 ---
 
