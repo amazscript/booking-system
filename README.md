@@ -78,6 +78,7 @@ booking/
     routes/               # API routes (admin, bookings, resources, upload)
     services/             # Email service, reminder cron
     utils/                # Sanitize, validation helpers
+    i18n/                 # Email translations (13 languages)
     seed.js               # Basic seed (admin + 3 resources)
     seed-demo.js          # Rich demo seed (6 resources, 25 bookings, images)
     server.js             # Express app entry point
@@ -91,7 +92,8 @@ booking/
         ConfirmModal.vue  # Confirmation dialog
         AddressField.vue  # Address autocomplete
       views/              # Page components
-        BookingCalendar   # Main booking page (calendar + form + modals)
+        HomePage          # Public booking page (resource, date, slots, form)
+        BookingCalendar   # Admin calendar (6 views, drag & drop, modals)
         AdminDashboard    # Bookings management table
         AdminResources    # Resources + custom fields management
         AdminBlocks       # Unavailability blocks management
@@ -113,27 +115,45 @@ booking/
 |--------|----------|-------------|
 | GET | `/api/resources` | List active resources |
 | GET | `/api/resources/:id/fields` | Custom fields for a resource |
-| GET | `/api/resources/:id/slots` | Time slots for a resource |
+| GET | `/api/resources/:id/slots?date=` | Available time slots for a date |
+| GET | `/api/resources/bookings/public?date_from=&date_to=` | Occupied slots (no client data) |
+| GET | `/api/resources/blocks/public?date_from=&date_to=` | Unavailability blocks |
 | POST | `/api/bookings` | Create a booking |
-| GET | `/api/bookings/cancel/:token` | Cancel a booking |
-| POST | `/api/upload` | Upload a file (image, PDF, doc) |
+| DELETE | `/api/bookings/:token` | Cancel a booking via email token |
+| POST | `/api/upload` | Upload a file (image, PDF, doc, max 10MB) |
+| GET | `/api/geocode?q=` | Address geocoding (LocationIQ/Nominatim) |
+| POST | `/api/auth/login` | Admin login, returns JWT |
 | GET | `/api/settings/public` | Public settings (name, color, logo) |
+| GET | `/api/health` | Health check |
 
-### Admin (JWT required)
+### Admin (JWT + admin role required)
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | `/api/auth/login` | Login, get JWT |
 | GET | `/api/admin/bookings` | List bookings (filters, pagination) |
 | POST | `/api/admin/bookings` | Create booking (admin) |
 | PUT | `/api/admin/bookings/:id` | Update booking |
 | DELETE | `/api/admin/bookings/:id` | Cancel booking (soft delete) |
 | DELETE | `/api/admin/bookings/:id/permanent` | Permanently delete booking |
 | GET | `/api/admin/booking-values/:id` | Custom field values for a booking |
-| GET/POST/PUT/DELETE | `/api/admin/resources/*` | CRUD resources |
-| POST | `/api/admin/resources/:id/slots` | Set time slots |
-| GET/POST/PUT/DELETE | `/api/admin/custom-fields/*` | CRUD custom fields |
-| GET/POST/PUT/DELETE | `/api/admin/blocks/*` | CRUD unavailability blocks |
-| GET/PUT | `/api/admin/settings` | App settings |
+| GET | `/api/admin/resources` | List resources (search, pagination) |
+| POST | `/api/admin/resources` | Create resource |
+| PUT | `/api/admin/resources/:id` | Update resource |
+| DELETE | `/api/admin/resources/:id` | Delete resource + associated data |
+| PUT | `/api/admin/resources-reorder` | Reorder resources (drag & drop) |
+| POST | `/api/admin/slots` | Set time slots for a resource |
+| GET | `/api/admin/custom-fields?resource_id=` | List custom fields |
+| POST | `/api/admin/custom-fields` | Create custom field |
+| PUT | `/api/admin/custom-fields/:id` | Update custom field |
+| DELETE | `/api/admin/custom-fields/:id` | Delete custom field |
+| PUT | `/api/admin/custom-fields-reorder` | Reorder fields (drag & drop) |
+| GET | `/api/admin/blocks` | List blocks (filter, pagination) |
+| POST | `/api/admin/blocks` | Create block |
+| PUT | `/api/admin/blocks/:id` | Update block |
+| DELETE | `/api/admin/blocks/:id` | Delete block |
+| GET | `/api/admin/settings` | Read settings |
+| PUT | `/api/admin/settings` | Update settings |
+| POST | `/api/admin/settings/test-smtp` | Test SMTP connection |
+| POST | `/api/admin/settings/upload-logo` | Upload logo |
 
 ## Custom Field Types
 
